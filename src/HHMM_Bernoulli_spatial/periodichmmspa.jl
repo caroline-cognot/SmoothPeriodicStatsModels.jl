@@ -15,7 +15,7 @@ If the initial state distribution `a` is not specified, it does not work. Please
 - `R` : range parameter
 -  `h` distance matrix.
 """
-struct PeriodicHMMSpaMemory{T, AM} <: AbstractPeriodicHMM{T}
+struct PeriodicHMMSpaMemory{T, AM} <: AbstractPeriodicHMM{Multivariate}
     a::Vector{T}
     A::Array{T,3}
     R::Array{T,2}
@@ -33,7 +33,7 @@ size(hmm::PeriodicHMMSpaMemory, dim=:) = (size(hmm.B, 1), size(hmm.B, 3), size(h
 function rand(rng::AbstractRNG,
     hmm::PeriodicHMMSpaMemory,
     z::AbstractVector{<:Integer},
-    n2t::AbstractVector{<:Integer}, y_ini
+    n2t::AbstractVector{<:Integer}, y_ini=fill(0, size(hmm, 2))
 )
     N = length(n2t)
     y = Matrix{eltype(eltype(hmm.B))}(undef, size(hmm, 2), length(z))
@@ -75,21 +75,3 @@ end
 #     y = my_rand(hmm, z, n2t, y_ini)
 #     return seq ? (z, y) : y
 # end
-function rand(
-    rng::AbstractRNG,
-    hmm::AbstractPeriodicHMM,
-    n2t::AbstractVector{<:Integer};
-    z_ini=rand(rng, Categorical(hmm.a))::Integer,
-    seq=false,
-    kwargs...
-)
-    N = length(n2t)
-    z = zeros(Int, N)
-    (N >= 1) && (z[1] = z_ini)
-    for n = 2:N
-        tₙ₋₁ = n2t[n-1] # periodic t-1
-        z[n] = rand(rng, Categorical(hmm.A[z[n-1], :, tₙ₋₁]))
-    end
-    y = rand(rng, hmm, z, n2t; kwargs...)
-    return seq ? (z, y) : y
-end

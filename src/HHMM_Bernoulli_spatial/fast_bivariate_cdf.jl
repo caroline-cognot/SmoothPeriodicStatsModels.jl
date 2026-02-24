@@ -1,4 +1,3 @@
-using SpecialFunctions, Distributions
 # converted from https://github.com/david-cortes/approxcdf
 # https://github.com/david-cortes/approxcdf/blob/master/src/other.cpp
 const c₁ = -1.0950081470333
